@@ -4,6 +4,12 @@ Dashboard operacional de varejo em tempo real que integra **12 servicos Azure** 
 
 O aluno cria um pedido na interface e acompanha todo o pipeline de processamento — desde o APIM gateway ate a notificacao de estoque baixo — com eventos aparecendo em tempo real via Server-Sent Events (SSE).
 
+## Arquitetura
+
+![Arquitetura do Lab Avancado](docs/arquitetura.drawio.png)
+
+> Diagrama editavel: [`docs/arquitetura.drawio`](docs/arquitetura.drawio) — abra no [draw.io](https://app.diagrams.net/) para visualizar com icones Azure.
+
 ## Servicos Azure Utilizados
 
 | # | Servico | Funcao no Lab |
@@ -25,21 +31,47 @@ O aluno cria um pedido na interface e acompanha todo o pipeline de processamento
 
 ```
 lab-avancado-dashboard/
-├── dashboard/              # App Service (Express API + React SPA)
-│   ├── server/             # Express API (routes, SSE, auth, db)
-│   ├── src/                # React com Vite + Tailwind CSS
-│   ├── sql/init.sql        # Schema + seed (12 produtos)
-│   ├── scripts/init-db.js  # Script de inicializacao do banco
-│   └── .env.example        # Template de variaveis de ambiente
-├── functions/              # Azure Functions + Durable Functions
-│   ├── src/functions/      # 13 functions (HTTP, Queue, Topic, EG, EH triggers)
-│   └── host.json           # Config do Durable Functions
-├── logic-apps/             # Definicoes ARM das Logic Apps
-├── docs/
-│   ├── guia-portal.md      # Guia passo-a-passo (15 etapas)
-│   └── arquitetura.drawio  # Diagrama da arquitetura (draw.io)
-└── .github/workflows/
-    └── deploy.yml          # CI/CD: 4 jobs automatizados
+├── .github/workflows/
+│   └── deploy.yml              # CI/CD: 4 jobs automatizados (workflow_dispatch)
+├── dashboard/                  # App Service (Express API + React SPA)
+│   ├── server/                 # Express API (auth OAuth 2.0, routes, SSE)
+│   │   ├── auth.js             # Autenticacao Entra ID (OAuth 2.0)
+│   │   ├── db.js               # Conexao SQL Server (mssql)
+│   │   ├── index.js            # Express server principal
+│   │   ├── sse.js              # Server-Sent Events (tempo real)
+│   │   └── routes/             # endpoints (orders, products, events, metrics)
+│   ├── src/                    # React com Vite + Tailwind CSS
+│   │   ├── pages/              # Dashboard, Pipeline, Orders, CreateOrder, Catalog, EventStream
+│   │   ├── components/         # KpiCard, EventCard, PipelineNode, StatusBadge, Layout
+│   │   ├── services/           # api.ts (REST) + sse.ts (eventos tempo real)
+│   │   └── types/              # TypeScript interfaces
+│   ├── sql/init.sql            # Schema SQL + seed (12 produtos)
+│   ├── scripts/init-db.js      # Script de inicializacao do banco
+│   └── .env.example            # Template de variaveis de ambiente
+├── functions/                  # Azure Functions + Durable Functions
+│   ├── src/functions/
+│   │   ├── createOrderApi.js       # HTTP trigger — cria pedido via APIM
+│   │   ├── processOrder.js         # Service Bus Queue trigger — processa pedido
+│   │   ├── orderOrchestrator.js    # Durable orchestrator — pipeline 6 etapas
+│   │   ├── handleStockAlert.js     # Event Grid trigger — alerta estoque baixo
+│   │   ├── notifyStock.js          # Service Bus Topic trigger — notifica estoque
+│   │   ├── processTelemetry.js     # Event Hub trigger — telemetria
+│   │   ├── sendTestTelemetry.js    # HTTP trigger — envia telemetria teste
+│   │   └── activities/             # 6 activity functions do Durable
+│   │       ├── validateOrder.js
+│   │       ├── checkCredit.js
+│   │       ├── reserveStock.js
+│   │       ├── processPayment.js
+│   │       ├── updateStatus.js
+│   │       └── notifyCompletion.js
+│   └── host.json               # Config do Durable Functions
+├── logic-apps/                 # Definicoes ARM das Logic Apps
+│   ├── lab-avancado-credit-approval.json   # Workflow aprovacao de credito
+│   └── lab-avancado-stock-alert.json       # Workflow alerta de estoque
+└── docs/
+    ├── guia-portal.md          # Guia passo-a-passo (15 etapas, 1600+ linhas)
+    ├── arquitetura.drawio      # Diagrama editavel (draw.io com icones Azure)
+    └── arquitetura.drawio.png  # Diagrama exportado (PNG)
 ```
 
 ## Como Usar
@@ -103,6 +135,12 @@ npm install
 npm run dev            # Inicia Express (3001) + Vite (5173)
 ```
 
+## Repositorio Principal
+
+Este lab faz parte da disciplina **Integracao e Mensageria no Azure** (TFTEC + Anhanguera). O repositorio completo com todos os labs, slides, quizzes e material autoral esta em:
+
+- [azure-retail](https://github.com/tftec-guilherme/azure-retail) — Repositorio principal da disciplina
+
 ---
 
-*Disciplina: Integracao e Mensageria no Azure — TFTEC + Anhanguera*
+*Disciplina: Integracao e Mensageria no Azure — Pos-Graduacao Arquitetura Cloud Azure | TFTEC + Anhanguera*
