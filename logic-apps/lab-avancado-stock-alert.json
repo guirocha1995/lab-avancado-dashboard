@@ -1,0 +1,157 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Logic App - Stock Alert para Lab Avancado. Recebe notificacoes de estoque baixo e envia emails de alerta. Para estoque = 0 envia email URGENTE.",
+    "lab": "lab-avancado-dashboard",
+    "service": "logic-app-stock-alert"
+  },
+  "parameters": {
+    "logicAppName": {
+      "type": "string",
+      "defaultValue": "logic-lab-avancado-stock-alert"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "alertEmail": {
+      "type": "string",
+      "defaultValue": "estoque@contoso.com",
+      "metadata": {
+        "description": "Email para receber alertas de estoque baixo"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "[parameters('logicAppName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "lab": "lab-avancado",
+        "purpose": "stock-alert"
+      },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "alertEmail": {
+              "type": "String",
+              "defaultValue": "[parameters('alertEmail')]"
+            }
+          },
+          "triggers": {
+            "manual": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "method": "POST",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "productId": { "type": "string" },
+                    "productName": { "type": "string" },
+                    "currentStock": { "type": "integer" },
+                    "storeId": { "type": "string" }
+                  },
+                  "required": ["productId", "productName", "currentStock"]
+                }
+              }
+            }
+          },
+          "actions": {
+            "Check_Stock_Level": {
+              "type": "If",
+              "runAfter": {},
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@triggerBody()?['currentStock']",
+                      0
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Send_Urgent_Email": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['office365']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "path": "/v2/Mail",
+                    "body": {
+                      "To": "@parameters('alertEmail')",
+                      "Subject": "[URGENTE] Estoque ZERADO - @{triggerBody()?['productName']}",
+                      "Body": "<h2 style='color: red;'>ALERTA URGENTE: Estoque Zerado</h2><p><strong>Produto:</strong> @{triggerBody()?['productName']}</p><p><strong>ID:</strong> @{triggerBody()?['productId']}</p><p><strong>Estoque Atual:</strong> 0 unidades</p><p><strong>Loja:</strong> @{triggerBody()?['storeId']}</p><p style='color: red;'><strong>Acao imediata necessaria: Produto indisponivel para venda!</strong></p><p><em>Alerta gerado automaticamente pelo Lab Avancado - Retail Operations Dashboard</em></p>",
+                      "Importance": "High",
+                      "IsHtml": true
+                    }
+                  },
+                  "metadata": {
+                    "description": "Email URGENTE para estoque zerado"
+                  }
+                }
+              },
+              "else": {
+                "actions": {
+                  "Send_Warning_Email": {
+                    "type": "ApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connection": {
+                          "name": "@parameters('$connections')['office365']['connectionId']"
+                        }
+                      },
+                      "method": "post",
+                      "path": "/v2/Mail",
+                      "body": {
+                        "To": "@parameters('alertEmail')",
+                        "Subject": "[Alerta] Estoque Baixo - @{triggerBody()?['productName']}",
+                        "Body": "<h2 style='color: orange;'>Alerta: Estoque Baixo</h2><p><strong>Produto:</strong> @{triggerBody()?['productName']}</p><p><strong>ID:</strong> @{triggerBody()?['productId']}</p><p><strong>Estoque Atual:</strong> @{triggerBody()?['currentStock']} unidades</p><p><strong>Loja:</strong> @{triggerBody()?['storeId']}</p><p>Considere reabastecer este produto em breve.</p><p><em>Alerta gerado automaticamente pelo Lab Avancado - Retail Operations Dashboard</em></p>",
+                        "Importance": "Normal",
+                        "IsHtml": true
+                      }
+                    },
+                    "metadata": {
+                      "description": "Email de alerta para estoque baixo (< 10 unidades)"
+                    }
+                  }
+                }
+              }
+            },
+            "Response": {
+              "type": "Response",
+              "runAfter": {
+                "Check_Stock_Level": ["Succeeded"]
+              },
+              "inputs": {
+                "statusCode": 200,
+                "headers": {
+                  "Content-Type": "application/json"
+                },
+                "body": {
+                  "notified": true,
+                  "productId": "@triggerBody()?['productId']",
+                  "productName": "@triggerBody()?['productName']",
+                  "currentStock": "@triggerBody()?['currentStock']",
+                  "alertLevel": "@if(equals(triggerBody()?['currentStock'], 0), 'urgent', 'warning')",
+                  "processedAt": "@utcNow()"
+                }
+              }
+            }
+          },
+          "outputs": {}
+        }
+      }
+    }
+  ]
+}

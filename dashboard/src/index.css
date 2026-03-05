@@ -1,0 +1,239 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   Base Styles - Lab Avancado Retail Operations Dashboard
+   ============================================================ */
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f9fafb;
+}
+
+/* ============================================================
+   Event Stream Animations
+   ============================================================ */
+
+@keyframes event-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.event-enter {
+  animation: event-fade-in 0.35s ease-out;
+}
+
+/* ============================================================
+   Pipeline Node Pulse Animation
+   ============================================================ */
+
+@keyframes node-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 120, 212, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(0, 120, 212, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 120, 212, 0);
+  }
+}
+
+.node-active {
+  animation: node-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes node-pulse-green {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+.node-success {
+  animation: node-pulse-green 1.5s ease-in-out 1;
+}
+
+@keyframes node-pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.node-error {
+  animation: node-pulse-red 1.5s ease-in-out 1;
+}
+
+/* ============================================================
+   Animated Connection Dots (between pipeline nodes)
+   ============================================================ */
+
+@keyframes flow-dots {
+  0% {
+    transform: translateX(-8px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+}
+
+.flow-dot {
+  animation: flow-dots 1.8s linear infinite;
+}
+
+.flow-dot:nth-child(2) {
+  animation-delay: 0.6s;
+}
+
+.flow-dot:nth-child(3) {
+  animation-delay: 1.2s;
+}
+
+/* ============================================================
+   Severity Color Classes
+   ============================================================ */
+
+.severity-info {
+  border-left-color: #3b82f6;
+}
+
+.severity-success {
+  border-left-color: #22c55e;
+}
+
+.severity-warning {
+  border-left-color: #f59e0b;
+}
+
+.severity-error {
+  border-left-color: #ef4444;
+}
+
+.severity-dot-info {
+  background-color: #3b82f6;
+}
+
+.severity-dot-success {
+  background-color: #22c55e;
+}
+
+.severity-dot-warning {
+  background-color: #f59e0b;
+}
+
+.severity-dot-error {
+  background-color: #ef4444;
+}
+
+/* ============================================================
+   Event Stream Scrollbar
+   ============================================================ */
+
+.event-stream-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.event-stream-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.event-stream-scroll::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+
+.event-stream-scroll::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* ============================================================
+   General Scrollbar
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ============================================================
+   Timeline Vertical Line
+   ============================================================ */
+
+.timeline-line {
+  position: relative;
+}
+
+.timeline-line::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #e2e8f0, #cbd5e1, #e2e8f0);
+}
+
+/* ============================================================
+   Value Change Animation
+   ============================================================ */
+
+@keyframes value-bump {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.value-changed {
+  animation: value-bump 0.3s ease-in-out;
+}

@@ -1,0 +1,50 @@
+{
+  "version": "2.0",
+  "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "excludedTypes": "Request"
+      }
+    },
+    "logLevel": {
+      "default": "Information",
+      "Host.Results": "Error",
+      "Function": "Information",
+      "Host.Aggregator": "Trace"
+    }
+  },
+  "extensionBundle": {
+    "id": "Microsoft.Azure.Functions.ExtensionBundle",
+    "version": "[4.*, 5.0.0)"
+  },
+  "extensions": {
+    "durableTask": {
+      "hubName": "LabAvancadoTaskHub",
+      "storageProvider": {
+        "type": "AzureStorage"
+      },
+      "tracing": {
+        "traceInputsAndOutputs": true,
+        "traceReplayEvents": false
+      },
+      "maxConcurrentActivityFunctions": 5,
+      "maxConcurrentOrchestratorFunctions": 3
+    },
+    "serviceBus": {
+      "prefetchCount": 0,
+      "autoCompleteMessages": false,
+      "maxAutoLockRenewalDuration": "00:05:00",
+      "maxConcurrentCalls": 1
+    },
+    "eventHubs": {
+      "batchCheckpointFrequency": 1,
+      "maxBatchSize": 32,
+      "prefetchCount": 64,
+      "initialOffsetOptions": {
+        "type": "fromEnqueuedTime",
+        "enqueuedTimeUtc": "2024-01-01T00:00:00Z"
+      }
+    }
+  }
+}

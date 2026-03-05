@@ -1,0 +1,396 @@
+<mxfile host="Electron" modified="2026-03-05T12:00:00.000Z" agent="Mozilla/5.0" version="23.1.5" type="device">
+  <diagram name="Lab Avançado — Retail Operations Dashboard" id="lab-avancado-arch">
+    <mxGraphModel dx="1700" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ============================================================ -->
+        <!-- TITLE -->
+        <!-- ============================================================ -->
+        <mxCell id="title" value="Lab Avançado — Retail Operations Dashboard&lt;br&gt;&lt;font style=&quot;font-size: 11px; font-weight: normal;&quot;&gt;App Service + SQL Database + APIM + Entra ID + Functions + Durable Functions + Service Bus + Event Grid + Event Hubs + Logic Apps + App Insights + GitHub Actions&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=16;fontStyle=1;fontColor=#1e3a5f;" parent="1" vertex="1">
+          <mxGeometry x="200" y="10" width="1200" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LAYER 1: BROWSER / USER -->
+        <!-- ============================================================ -->
+        <mxCell id="browser-container" value="Usuário / Browser" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6e6;strokeColor=#dc3545;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="540" y="70" width="520" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="browser" value="React SPA&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot;&gt;Dashboard | Catálogo | Pedidos | Event Stream | Pipeline&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dc3545;strokeColor=#b02a37;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="570" y="95" width="460" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LAYER 2: APP SERVICE + SQL DATABASE -->
+        <!-- ============================================================ -->
+        <mxCell id="appservice-container" value="Azure App Service: app-lab-avancado (B1 Linux)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6ffe6;strokeColor=#28a745;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="30" y="180" width="620" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="express-api" value="Express API&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;/api/products | /api/orders&lt;br&gt;/api/events | /api/metrics&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;strokeColor=#1e7e34;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50" y="210" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="sse-endpoint" value="SSE Endpoint&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;/api/events/stream&lt;br&gt;Server-Sent Events&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;strokeColor=#1e7e34;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="250" y="210" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="callback-endpoint" value="Callback Webhook&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;POST /api/events/notify&lt;br&gt;Recebe eventos das Functions&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;strokeColor=#1e7e34;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="440" y="210" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- SQL Database -->
+        <mxCell id="sql-container" value="Azure SQL Database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ede7f6;strokeColor=#6f42c1;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="30" y="310" width="620" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="sql-db" value="sqldb-lab-avancado&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;Serverless Gen5 | 1 vCore | Auto-pause 1h&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6f42c1;strokeColor=#5f27cd;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50" y="340" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sql-tables" value="&lt;font style=&quot;font-size: 8px;&quot;&gt;Products (12) | Orders | OrderItems | EventLog | Metrics&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5c5f0;strokeColor=#6f42c1;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="290" y="340" width="340" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LAYER 3: API MANAGEMENT -->
+        <!-- ============================================================ -->
+        <mxCell id="apim-container" value="Azure API Management: apim-lab-avancado (Consumption)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#ff8c00;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="700" y="180" width="420" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="apim-gateway" value="APIM Gateway&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;rate-limit: 60/min | CORS&lt;br&gt;validate-jwt (OAuth 2.0) | Subscription Key&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ff8c00;strokeColor=#e67e22;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="720" y="210" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="apim-api" value="Retail Operations API&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;POST /orders → createOrderApi&lt;br&gt;Product: Unlimited&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe0b2;strokeColor=#ff8c00;fontColor=#000000;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="920" y="210" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LAYER 4: FUNCTION APP + DURABLE FUNCTIONS -->
+        <!-- ============================================================ -->
+        <mxCell id="func-container" value="Azure Functions + Durable Functions: func-lab-avancado (Consumption)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6ffe6;strokeColor=#28a745;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="700" y="310" width="920" height="210" as="geometry" />
+        </mxCell>
+
+        <!-- HTTP Trigger -->
+        <mxCell id="func-createOrder" value="createOrderApi&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;HTTP Trigger (via APIM)&lt;br&gt;→ Service Bus Queue&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;strokeColor=#1e7e34;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="720" y="340" width="170" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Durable Orchestrator -->
+        <mxCell id="durable-container" value="Durable Functions — Orquestrador de Pedidos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;strokeWidth=2;fontSize=11;fontStyle=1;verticalAlign=top;spacingTop=3;fontColor=#000000;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="720" y="400" width="880" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="act-validate" value="1. Validar&lt;br&gt;Pedido" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66bb6a;strokeColor=#388e3c;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="735" y="430" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="act-stock" value="2. Reservar&lt;br&gt;Estoque" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66bb6a;strokeColor=#388e3c;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="855" y="430" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="act-credit" value="3. Verificar&lt;br&gt;Crédito" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffa726;strokeColor=#ef6c00;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="975" y="430" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="act-payment" value="4. Processar&lt;br&gt;Pagamento" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66bb6a;strokeColor=#388e3c;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1095" y="430" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="act-status" value="5. Atualizar&lt;br&gt;Status" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66bb6a;strokeColor=#388e3c;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1215" y="430" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="act-notify" value="6. Notificar&lt;br&gt;Conclusão" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#66bb6a;strokeColor=#388e3c;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1335" y="430" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Supporting Functions -->
+        <mxCell id="func-notifyStock" value="notifyStock&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;Topic Sub Trigger&lt;br&gt;Atualiza estoque&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;strokeColor=#1e7e34;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="910" y="340" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="func-handleAlert" value="handleStockAlert&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;Event Grid Trigger&lt;br&gt;Alerta crítico&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;strokeColor=#1e7e34;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1060" y="340" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="func-telemetry" value="processTelemetry&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;Event Hub Trigger&lt;br&gt;Agrega métricas&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;strokeColor=#1e7e34;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1210" y="340" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="func-testTelemetry" value="sendTestTelemetry&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;HTTP Trigger (helper)&lt;br&gt;10 eventos de teste&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#81c784;strokeColor=#388e3c;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1360" y="340" width="130" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LAYER 5: SERVICE BUS -->
+        <!-- ============================================================ -->
+        <mxCell id="sb-container" value="Azure Service Bus: sb-lab-avancado (Standard)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#0078D4;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="30" y="430" width="620" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="sb-queue" value="Queue&lt;br&gt;&lt;b&gt;order-queue&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;Lock: 30s | MaxDelivery: 5&lt;br&gt;Ponto-a-ponto (1:1)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0078D4;strokeColor=#005A9E;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="50" y="460" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="sb-topic" value="Topic&lt;br&gt;&lt;b&gt;order-events&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;Publish-Subscribe (1:N)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0078D4;strokeColor=#005A9E;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="50" y="530" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sb-sub" value="Subscription&lt;br&gt;&lt;b&gt;stock-sub&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;SQL Filter: eventType = 'order.approved'&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#0078D4;fontColor=#000000;fontSize=9;" parent="1" vertex="1">
+          <mxGeometry x="290" y="530" width="250" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LAYER 6: EVENT GRID -->
+        <!-- ============================================================ -->
+        <mxCell id="eg-container" value="Azure Event Grid: evgt-lab-avancado" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#ffc107;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="30" y="620" width="300" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="eg-topic" value="Custom Topic&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;inventory.low-stock&lt;br&gt;inventory.out-of-stock&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffc107;strokeColor=#e0a800;fontColor=#000000;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50" y="650" width="260" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LAYER 7: EVENT HUBS -->
+        <!-- ============================================================ -->
+        <mxCell id="eh-container" value="Azure Event Hubs: evhns-lab-avancado (Standard 1 TU)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0f2f1;strokeColor=#20c997;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="370" y="620" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="eh-hub" value="telemetry-hub&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;2 partições | 1 dia retenção&lt;br&gt;Consumer Group: $Default&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#20c997;strokeColor=#17a389;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="390" y="650" width="240" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LAYER 8: LOGIC APPS -->
+        <!-- ============================================================ -->
+        <mxCell id="la-container" value="Azure Logic Apps (Consumption)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#6f42c1;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="700" y="560" width="450" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="la-credit" value="la-credit-approval&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;HTTP Trigger | Se &gt; R$5k&lt;br&gt;Email se &gt; R$10k | Auto-approve 5k-10k&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6f42c1;strokeColor=#5f27cd;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="720" y="590" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="la-stock" value="la-stock-alert&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;HTTP Trigger | Estoque = 0&lt;br&gt;Email URGENTE ao fornecedor&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6f42c1;strokeColor=#5f27cd;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="940" y="590" width="190" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LAYER 9: APPLICATION INSIGHTS -->
+        <!-- ============================================================ -->
+        <mxCell id="ai-container" value="Application Insights: ai-lab-avancado" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#6c757d;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="1200" y="560" width="250" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="ai-monitor" value="Monitoramento&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;Application Map | Live Metrics&lt;br&gt;KQL Alerts | Distributed Tracing&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6c757d;strokeColor=#545b62;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="590" width="210" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- CONNECTIONS / ARROWS -->
+        <!-- ============================================================ -->
+
+        <!-- Browser → App Service (React serves from Express) -->
+        <mxCell id="conn-browser-app" value="HTTP + SSE" style="strokeColor=#dc3545;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#dc3545;" parent="1" source="browser" target="express-api" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Browser ← SSE (real-time events) -->
+        <mxCell id="conn-sse-browser" value="&lt;font color=&quot;#28a745&quot;&gt;SSE (tempo real)&lt;/font&gt;" style="strokeColor=#28a745;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;dashed=1;" parent="1" source="sse-endpoint" target="browser" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- App Service → SQL -->
+        <mxCell id="conn-app-sql" value="mssql" style="strokeColor=#6f42c1;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#6f42c1;" parent="1" source="express-api" target="sql-db" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- App Service → APIM (POST /orders) -->
+        <mxCell id="conn-app-apim" value="POST /orders&lt;br&gt;+ Subscription Key + Bearer JWT" style="strokeColor=#ff8c00;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#ff8c00;" parent="1" source="express-api" target="apim-gateway" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- APIM → Function createOrderApi -->
+        <mxCell id="conn-apim-func" value="rate-limited" style="strokeColor=#ff8c00;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#ff8c00;" parent="1" source="apim-api" target="func-createOrder" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Function createOrderApi → Service Bus Queue -->
+        <mxCell id="conn-func-queue" value="envia msg" style="strokeColor=#0078D4;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#0078D4;" parent="1" source="func-createOrder" target="sb-queue" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Queue → Durable Orchestrator -->
+        <mxCell id="conn-queue-durable" value="Queue Trigger" style="strokeColor=#0078D4;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#0078D4;" parent="1" source="sb-queue" target="act-validate" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Durable step arrows (chaining) -->
+        <mxCell id="conn-d1-d2" value="" style="strokeColor=#388e3c;strokeWidth=2;endArrow=blockThin;endFill=1;" parent="1" source="act-validate" target="act-stock" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-d2-d3" value="" style="strokeColor=#388e3c;strokeWidth=2;endArrow=blockThin;endFill=1;" parent="1" source="act-stock" target="act-credit" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-d3-d4" value="" style="strokeColor=#388e3c;strokeWidth=2;endArrow=blockThin;endFill=1;" parent="1" source="act-credit" target="act-payment" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-d4-d5" value="" style="strokeColor=#388e3c;strokeWidth=2;endArrow=blockThin;endFill=1;" parent="1" source="act-payment" target="act-status" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-d5-d6" value="" style="strokeColor=#388e3c;strokeWidth=2;endArrow=blockThin;endFill=1;" parent="1" source="act-status" target="act-notify" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Durable step 3 → Logic App Credit -->
+        <mxCell id="conn-credit-la" value="se &gt; R$5k" style="strokeColor=#6f42c1;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#6f42c1;dashed=1;" parent="1" source="act-credit" target="la-credit" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Durable step 2 → Event Grid (low stock) -->
+        <mxCell id="conn-stock-eg" value="se estoque &lt; 10" style="strokeColor=#ffc107;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#e0a800;dashed=1;" parent="1" source="act-stock" target="eg-topic" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Event Grid → handleStockAlert Function -->
+        <mxCell id="conn-eg-func" value="Event Grid Trigger" style="strokeColor=#ffc107;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#e0a800;" parent="1" source="eg-topic" target="func-handleAlert" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- handleStockAlert → Logic App Stock Alert -->
+        <mxCell id="conn-alert-la" value="se stock = 0" style="strokeColor=#6f42c1;strokeWidth=1;endArrow=blockThin;endFill=1;fontSize=8;fontColor=#6f42c1;dashed=1;" parent="1" source="func-handleAlert" target="la-stock" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Durable step 5 → Service Bus Topic -->
+        <mxCell id="conn-status-topic" value="publica evento" style="strokeColor=#0078D4;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#0078D4;" parent="1" source="act-status" target="sb-topic" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Topic → Subscription -->
+        <mxCell id="conn-topic-sub" value="" style="strokeColor=#0078D4;strokeWidth=1;endArrow=blockThin;endFill=1;" parent="1" source="sb-topic" target="sb-sub" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Subscription → notifyStock Function -->
+        <mxCell id="conn-sub-func" value="Topic Sub Trigger" style="strokeColor=#0078D4;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#0078D4;" parent="1" source="sb-sub" target="func-notifyStock" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Event Hub → processTelemetry -->
+        <mxCell id="conn-eh-func" value="Event Hub Trigger" style="strokeColor=#20c997;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=9;fontColor=#17a389;" parent="1" source="eh-hub" target="func-telemetry" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- sendTestTelemetry → Event Hub -->
+        <mxCell id="conn-test-eh" value="10 eventos" style="strokeColor=#20c997;strokeWidth=1;endArrow=blockThin;endFill=1;fontSize=8;fontColor=#17a389;dashed=1;" parent="1" source="func-testTelemetry" target="eh-hub" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- All Functions → Callback (notify events) -->
+        <mxCell id="conn-func-callback1" value="&lt;font color=&quot;#28a745&quot;&gt;POST /api/events/notify&lt;br&gt;(todos os eventos)&lt;/font&gt;" style="strokeColor=#28a745;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=8;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="durable-container" target="callback-endpoint" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- App Insights ← telemetry from all services -->
+        <mxCell id="conn-ai-app" value="" style="strokeColor=#6c757d;strokeWidth=1;endArrow=blockThin;endFill=1;dashed=1;" parent="1" source="express-api" target="ai-monitor" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-ai-func" value="telemetry" style="strokeColor=#6c757d;strokeWidth=1;endArrow=blockThin;endFill=1;dashed=1;fontSize=8;fontColor=#6c757d;" parent="1" source="func-createOrder" target="ai-monitor" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LAYER 10: MICROSOFT ENTRA ID (OAuth 2.0) -->
+        <!-- ============================================================ -->
+        <mxCell id="entra-container" value="Microsoft Entra ID (Azure AD)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3f51b5;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="1200" y="140" width="420" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="entra-api-reg" value="App Registration&lt;br&gt;&lt;b&gt;app-reg-lab-api&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;Scope: Orders.ReadWrite&lt;br&gt;Application ID URI: api://{client-id}&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3f51b5;strokeColor=#303f9f;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="170" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="entra-client-reg" value="App Registration&lt;br&gt;&lt;b&gt;app-reg-lab-dashboard&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;Client Credentials Flow&lt;br&gt;Client Secret + API Permission&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3f51b5;strokeColor=#303f9f;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1420" y="170" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="entra-token" value="&lt;font style=&quot;font-size: 8px;&quot;&gt;Token Endpoint: login.microsoftonline.com/{tenant}/oauth2/v2.0/token&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c5cae9;strokeColor=#3f51b5;fontColor=#000000;fontSize=8;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="235" width="380" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Entra ID connections -->
+        <!-- App Service (auth.js) → Entra ID (get token) -->
+        <mxCell id="conn-app-entra" value="&lt;font color=&quot;#3f51b5&quot;&gt;1. Client Credentials&lt;br&gt;(get JWT token)&lt;/font&gt;" style="strokeColor=#3f51b5;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=8;dashed=1;" parent="1" source="express-api" target="entra-client-reg" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- App Service → APIM with Bearer token -->
+        <mxCell id="conn-app-apim-jwt" value="&lt;font color=&quot;#3f51b5&quot;&gt;2. Bearer JWT&lt;/font&gt;" style="strokeColor=#3f51b5;strokeWidth=1;endArrow=blockThin;endFill=1;fontSize=8;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" parent="1" source="express-api" target="apim-gateway" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- APIM validates JWT against Entra ID -->
+        <mxCell id="conn-apim-entra" value="&lt;font color=&quot;#3f51b5&quot;&gt;3. validate-jwt&lt;br&gt;(verifica assinatura)&lt;/font&gt;" style="strokeColor=#3f51b5;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=8;dashed=1;" parent="1" source="apim-gateway" target="entra-api-reg" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LAYER 11: GITHUB ACTIONS CI/CD -->
+        <!-- ============================================================ -->
+        <mxCell id="gh-container" value="GitHub Actions CI/CD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#24292e;strokeWidth=2;fontSize=13;fontStyle=1;verticalAlign=top;spacingTop=5;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="1200" y="670" width="420" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="gh-validate" value="1. Validate&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;Sintaxe JS + Vite Build&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#24292e;strokeColor=#1b1f23;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1215" y="700" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gh-deploy" value="2. Deploy&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;App Service (API + Web)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#24292e;strokeColor=#1b1f23;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1350" y="700" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="gh-seed" value="3. Seed DB&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;SQL Schema + 12 Produtos&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#24292e;strokeColor=#1b1f23;fontColor=#FFFFFF;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1485" y="700" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- GitHub Actions connections -->
+        <mxCell id="conn-gh-validate-deploy" value="" style="strokeColor=#24292e;strokeWidth=1;endArrow=blockThin;endFill=1;" parent="1" source="gh-validate" target="gh-deploy" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="conn-gh-validate-seed" value="" style="strokeColor=#24292e;strokeWidth=1;endArrow=blockThin;endFill=1;" parent="1" source="gh-validate" target="gh-seed" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Deploy → App Service -->
+        <mxCell id="conn-gh-appservice" value="&lt;font color=&quot;#24292e&quot;&gt;deploy&lt;/font&gt;" style="strokeColor=#24292e;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=8;dashed=1;" parent="1" source="gh-deploy" target="appservice-container" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- Seed → SQL Database -->
+        <mxCell id="conn-gh-sql" value="&lt;font color=&quot;#24292e&quot;&gt;seed&lt;/font&gt;" style="strokeColor=#24292e;strokeWidth=2;endArrow=blockThin;endFill=1;fontSize=8;dashed=1;" parent="1" source="gh-seed" target="sql-container" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- LEGEND -->
+        <!-- ============================================================ -->
+        <mxCell id="legend-container" value="Legenda" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#aaaaaa;strokeWidth=1;fontSize=12;fontStyle=1;verticalAlign=top;spacingTop=3;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="30" y="740" width="780" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-1" value="App Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#28a745;strokeColor=#1e7e34;fontColor=#FFFFFF;fontSize=8;" parent="1" vertex="1">
+          <mxGeometry x="50" y="770" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-2" value="SQL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6f42c1;strokeColor=#5f27cd;fontColor=#FFFFFF;fontSize=8;" parent="1" vertex="1">
+          <mxGeometry x="130" y="770" width="50" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-3" value="APIM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ff8c00;strokeColor=#e67e22;fontColor=#FFFFFF;fontSize=8;" parent="1" vertex="1">
+          <mxGeometry x="190" y="770" width="50" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-4" value="Service Bus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0078D4;strokeColor=#005A9E;fontColor=#FFFFFF;fontSize=8;" parent="1" vertex="1">
+          <mxGeometry x="250" y="770" width="75" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-5" value="Event Grid" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffc107;strokeColor=#e0a800;fontColor=#000000;fontSize=8;" parent="1" vertex="1">
+          <mxGeometry x="335" y="770" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-6" value="Event Hubs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#20c997;strokeColor=#17a389;fontColor=#FFFFFF;fontSize=8;" parent="1" vertex="1">
+          <mxGeometry x="415" y="770" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-7" value="Logic Apps" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6f42c1;strokeColor=#5f27cd;fontColor=#FFFFFF;fontSize=8;" parent="1" vertex="1">
+          <mxGeometry x="495" y="770" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-8" value="App Insights" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6c757d;strokeColor=#545b62;fontColor=#FFFFFF;fontSize=8;" parent="1" vertex="1">
+          <mxGeometry x="575" y="770" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-9" value="Entra ID" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3f51b5;strokeColor=#303f9f;fontColor=#FFFFFF;fontSize=8;" parent="1" vertex="1">
+          <mxGeometry x="655" y="770" width="60" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-10" value="GitHub Actions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#24292e;strokeColor=#1b1f23;fontColor=#FFFFFF;fontSize=8;" parent="1" vertex="1">
+          <mxGeometry x="725" y="770" width="75" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ============================================================ -->
+        <!-- COST BOX -->
+        <!-- ============================================================ -->
+        <mxCell id="cost-box" value="&lt;b&gt;Custo Estimado&lt;/b&gt;&lt;br&gt;Mensal: ~R$ 260 | Lab (1 dia): ~R$ 12-15&lt;br&gt;&lt;font style=&quot;font-size: 8px;&quot;&gt;Maiores custos: Event Hubs Standard (~R$115) + Service Bus Standard (~R$55) + App Service B1 (~R$30)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#ffc107;strokeWidth=1;fontSize=10;fontColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="700" y="670" width="500" height="55" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

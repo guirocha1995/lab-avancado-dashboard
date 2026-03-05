@@ -1,0 +1,268 @@
+# ============================================================
+# CI/CD — Lab Avancado: Retail Operations Dashboard
+# ============================================================
+# Deploy completo: App Service + Azure Functions + SQL Database seed
+#
+# Jobs:
+#   1. validate:         sintaxe JS/TS + build React
+#   2. deploy-app:       deploy App Service (Express API + React)
+#   3. deploy-functions: deploy Azure Functions (13 functions)
+#   4. seed-db:          schema + 12 produtos no SQL Database
+#
+# Secrets necessarios:
+#   AZURE_CREDENTIALS              — JSON do Service Principal
+#   LAB_AVANCADO_APP_NAME          — Nome do App Service
+#   LAB_AVANCADO_FUNCTIONAPP_NAME  — Nome do Function App
+#   LAB_AVANCADO_SQL_SERVER        — FQDN do SQL Server
+#   LAB_AVANCADO_SQL_DATABASE      — Nome do banco
+#   LAB_AVANCADO_SQL_USER          — Usuario admin
+#   LAB_AVANCADO_SQL_PASSWORD      — Senha
+# ============================================================
+
+name: "Deploy Lab Avancado"
+
+on:
+  push:
+    branches: [main]
+
+  workflow_dispatch:
+    inputs:
+      seed_database:
+        description: "Executar seed do banco de dados?"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      deploy_functions:
+        description: "Deploy das Azure Functions?"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+env:
+  NODE_VERSION: "20"
+
+# ─── Job 1: Validate ──────────────────────────────────────
+jobs:
+  validate:
+    name: "Validate"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Instalar dependencias (Dashboard)
+        run: npm install
+        working-directory: dashboard
+
+      - name: Verificar sintaxe JS (server)
+        run: find server scripts -name "*.js" -exec node --check {} +
+        working-directory: dashboard
+
+      - name: Build React
+        run: npm run build
+        working-directory: dashboard
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: dashboard/dist
+          retention-days: 1
+
+      - name: Instalar dependencias (Functions)
+        run: npm install
+        working-directory: functions
+
+      - name: Verificar sintaxe JS (Functions)
+        run: find src -name "*.js" -exec node --check {} +
+        working-directory: functions
+
+  # ─── Job 2: Deploy App Service ─────────────────────────────
+  deploy-app:
+    name: "Deploy App Service"
+    runs-on: ubuntu-latest
+    needs: validate
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: dashboard/dist
+
+      - name: Instalar dependencias de producao
+        run: npm install --omit=dev
+        working-directory: dashboard
+
+      - name: Preparar pacote de deploy
+        run: |
+          mkdir -p deploy-package
+          cp -r server/ deploy-package/server/
+          cp -r dist/ deploy-package/dist/
+          cp -r sql/ deploy-package/sql/
+          cp -r scripts/ deploy-package/scripts/
+          cp package.json deploy-package/
+          cp package-lock.json deploy-package/ 2>/dev/null || true
+          cd deploy-package && npm install --omit=dev
+          cat > web.config << 'WEBCONFIG'
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <system.webServer>
+              <handlers>
+                <add name="iisnode" path="server/index.js" verb="*" modules="iisnode"/>
+              </handlers>
+              <rewrite>
+                <rules>
+                  <rule name="NodeInspector" patternSyntax="ECMAScript" stopProcessing="true">
+                    <match url="^server/index.js\/debug[\/]?" />
+                  </rule>
+                  <rule name="StaticContent">
+                    <action type="Rewrite" url="dist{REQUEST_URI}"/>
+                  </rule>
+                  <rule name="DynamicContent">
+                    <conditions>
+                      <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True"/>
+                    </conditions>
+                    <action type="Rewrite" url="server/index.js"/>
+                  </rule>
+                </rules>
+              </rewrite>
+              <iisnode watchedFiles="web.config;*.js"/>
+            </system.webServer>
+          </configuration>
+          WEBCONFIG
+        working-directory: dashboard
+
+      - name: Login no Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Configurar App Settings
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: ${{ secrets.LAB_AVANCADO_APP_NAME }}
+          app-settings-json: |
+            [
+              { "name": "NODE_ENV",       "value": "production" },
+              { "name": "WEBSITE_NODE_DEFAULT_VERSION", "value": "~20" },
+              { "name": "SCM_DO_BUILD_DURING_DEPLOYMENT", "value": "false" }
+            ]
+
+      - name: Deploy para App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.LAB_AVANCADO_APP_NAME }}
+          package: dashboard/deploy-package
+
+  # ─── Job 3: Deploy Azure Functions ─────────────────────────
+  deploy-functions:
+    name: "Deploy Azure Functions"
+    runs-on: ubuntu-latest
+    needs: validate
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_functions == 'true')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Instalar dependencias
+        run: npm install --production
+        working-directory: functions
+
+      - name: Login no Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy para Azure Functions
+        uses: azure/functions-action@v2
+        with:
+          app-name: ${{ secrets.LAB_AVANCADO_FUNCTIONAPP_NAME }}
+          package: functions
+
+  # ─── Job 4: Seed Database ──────────────────────────────────
+  seed-db:
+    name: "Seed SQL Database"
+    runs-on: ubuntu-latest
+    needs: validate
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.seed_database == 'true')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Instalar dependencia mssql
+        run: npm install mssql dotenv
+        working-directory: dashboard
+
+      - name: Login no Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Liberar IP do runner no firewall
+        run: |
+          RUNNER_IP=$(curl -s https://api.ipify.org)
+          echo "Runner IP: $RUNNER_IP"
+          SQL_SERVER_NAME=$(echo "${{ secrets.LAB_AVANCADO_SQL_SERVER }}" | sed 's/.database.windows.net//')
+          az sql server firewall-rule create \
+            --resource-group rg-lab-avancado \
+            --server "$SQL_SERVER_NAME" \
+            --name "github-actions-runner" \
+            --start-ip-address "$RUNNER_IP" \
+            --end-ip-address "$RUNNER_IP"
+
+      - name: Executar seed
+        run: node scripts/init-db.js
+        working-directory: dashboard
+        env:
+          SQL_SERVER: ${{ secrets.LAB_AVANCADO_SQL_SERVER }}
+          SQL_DATABASE: ${{ secrets.LAB_AVANCADO_SQL_DATABASE }}
+          SQL_USER: ${{ secrets.LAB_AVANCADO_SQL_USER }}
+          SQL_PASSWORD: ${{ secrets.LAB_AVANCADO_SQL_PASSWORD }}
+
+      - name: Remover IP do runner do firewall
+        if: always()
+        run: |
+          SQL_SERVER_NAME=$(echo "${{ secrets.LAB_AVANCADO_SQL_SERVER }}" | sed 's/.database.windows.net//')
+          az sql server firewall-rule delete \
+            --resource-group rg-lab-avancado \
+            --server "$SQL_SERVER_NAME" \
+            --name "github-actions-runner" \
+            --yes 2>/dev/null || true

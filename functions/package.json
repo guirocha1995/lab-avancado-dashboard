@@ -1,0 +1,13 @@
+{
+  "name": "lab-avancado-functions",
+  "version": "1.0.0",
+  "description": "Azure Functions para o Lab Avancado - Retail Operations Dashboard",
+  "dependencies": {
+    "@azure/functions": "^4.0.0",
+    "@azure/service-bus": "^7.9.0",
+    "@azure/event-hubs": "^5.11.0",
+    "@azure/data-tables": "^13.2.2",
+    "@azure/eventgrid": "^5.1.0",
+    "durable-functions": "^3.0.0"
+  }
+}
