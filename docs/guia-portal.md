@@ -58,6 +58,13 @@
 
 ## Diagrama da Arquitetura
 
+![Arquitetura do Lab Avancado](arquitetura.drawio.png)
+
+> **Nota:** O diagrama acima esta disponivel em formato editavel em [`docs/arquitetura.drawio`](arquitetura.drawio). Abra no [draw.io](https://app.diagrams.net/) para visualizar com os icones Azure.
+
+<details>
+<summary>Versao Mermaid (alternativa textual)</summary>
+
 ```mermaid
 flowchart TB
     subgraph Browser
@@ -163,6 +170,8 @@ flowchart TB
     FA -.->|"Telemetria"| AI
     AppService -.->|"Telemetria"| AI
 ```
+
+</details>
 
 ---
 
