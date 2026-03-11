@@ -991,10 +991,7 @@ O repositorio inclui um workflow do GitHub Actions que automatiza todo o process
 No Azure Cloud Shell ou terminal local com Azure CLI:
 
 ```bash
-az ad sp create-for-rbac --name "sp-lab-avancado" \
-  --role Contributor \
-  --scopes /subscriptions/{subscription-id}/resourceGroups/rg-lab-avancado \
-  --sdk-auth
+az ad sp create-for-rbac --name "sp-lab-avancado" --role Contributor --scopes /subscriptions/{subscription-id}/resourceGroups/rg-lab-avancado --sdk-auth
 ```
 
 > **Importante:** Substitua `{subscription-id}` pelo ID da sua subscription (Portal > Subscriptions).
