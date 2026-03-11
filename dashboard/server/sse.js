@@ -26,13 +26,18 @@ function addClient(req, res) {
 function broadcast(event) {
   eventIdCounter += 1;
 
+  const now = new Date().toISOString();
+  const eventType = event.type || 'unknown';
+
   const payload = {
     id: eventIdCounter,
-    type: event.type || 'unknown',
+    type: eventType,
+    eventType,
     source: event.source || 'app-service',
     payload: event.payload || {},
     severity: event.severity || 'info',
-    timestamp: event.timestamp || new Date().toISOString(),
+    timestamp: event.timestamp || now,
+    createdAt: event.timestamp || now,
   };
 
   const data = `event: event\ndata: ${JSON.stringify(payload)}\n\n`;
