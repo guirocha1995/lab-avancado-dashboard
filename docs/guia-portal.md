@@ -991,10 +991,10 @@ O repositorio inclui um workflow do GitHub Actions que automatiza todo o process
 No Azure Cloud Shell ou terminal local com Azure CLI:
 
 ```bash
-az ad sp create-for-rbac --name "sp-lab-avancado" --role Contributor --scopes /subscriptions/{subscription-id}/resourceGroups/rg-lab-avancado --sdk-auth
+az ad sp create-for-rbac --name "sp-lab-avancado" --role Contributor --scopes /subscriptions/{subscription-id}/resourceGroups/rg-lab-avancado
 ```
 
-> **Importante:** O parametro `--sdk-auth` eh necessario para gerar o JSON no formato que o GitHub Actions (`azure/login@v1`) espera (com `clientId`, `clientSecret`, `tenantId`, `subscriptionId`). Copie o JSON completo de saida — ele sera usado como secret no GitHub.
+> A saida sera um JSON com `appId`, `password`, `tenant`. Anote esses valores — eles serao usados como secrets no GitHub.
 
 ### Passo 10.2: Configurar Secrets no GitHub
 
@@ -1004,7 +1004,10 @@ az ad sp create-for-rbac --name "sp-lab-avancado" --role Contributor --scopes /s
 
 | Secret | Valor | Onde encontrar |
 |--------|-------|----------------|
-| `AZURE_CREDENTIALS` | JSON completo do Service Principal | Saida do comando `az ad sp create-for-rbac` |
+| `AZURE_CLIENT_ID` | `appId` do Service Principal | Campo `appId` da saida do passo 10.1 |
+| `AZURE_CLIENT_SECRET` | `password` do Service Principal | Campo `password` da saida do passo 10.1 |
+| `AZURE_TENANT_ID` | `tenant` do Service Principal | Campo `tenant` da saida do passo 10.1 |
+| `AZURE_SUBSCRIPTION_ID` | ID da sua subscription Azure | Portal > Subscriptions > copie o Subscription ID |
 | `LAB_AVANCADO_APP_NAME` | `app-lab-avancado` | Nome do App Service (Etapa 3) |
 | `LAB_AVANCADO_FUNCTIONAPP_NAME` | `func-lab-avancado` | Nome do Function App (Etapa 9) |
 | `LAB_AVANCADO_SQL_SERVER` | `sql-lab-avancado.database.windows.net` | FQDN do SQL Server (Etapa 2) |

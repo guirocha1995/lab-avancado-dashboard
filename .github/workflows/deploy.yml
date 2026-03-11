@@ -10,7 +10,10 @@
 #   4. seed-db:          schema + 12 produtos no SQL Database
 #
 # Secrets necessarios:
-#   AZURE_CREDENTIALS              — JSON do Service Principal
+#   AZURE_CLIENT_ID                — appId do Service Principal
+#   AZURE_CLIENT_SECRET            — password do Service Principal
+#   AZURE_TENANT_ID                — tenant do Service Principal
+#   AZURE_SUBSCRIPTION_ID          — ID da subscription Azure
 #   LAB_AVANCADO_APP_NAME          — Nome do App Service
 #   LAB_AVANCADO_FUNCTIONAPP_NAME  — Nome do Function App
 #   LAB_AVANCADO_SQL_SERVER        — FQDN do SQL Server
@@ -122,9 +125,12 @@ jobs:
         working-directory: dashboard
 
       - name: Login no Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Remover WEBSITE_RUN_FROM_PACKAGE se existir
         run: |
@@ -181,9 +187,12 @@ jobs:
         working-directory: functions
 
       - name: Login no Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy para Azure Functions
         uses: azure/functions-action@v1
@@ -258,9 +267,12 @@ jobs:
         working-directory: dashboard
 
       - name: Login no Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Liberar IP do runner no firewall
         run: |
