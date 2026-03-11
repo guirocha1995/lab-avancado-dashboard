@@ -54,8 +54,8 @@ async function notifyAppService(event, context) {
 
 app.http('createOrderApi', {
   methods: ['POST'],
-  authLevel: 'function',
-  route: 'createOrder',
+  authLevel: 'anonymous',
+  route: 'orders',
   handler: async (request, context) => {
     context.log('=== createOrderApi: Requisicao recebida via APIM ===');
 
