@@ -138,7 +138,13 @@ jobs:
           az webapp config appsettings set \
             --name ${{ secrets.LAB_AVANCADO_APP_NAME }} \
             --resource-group rg-lab-avancado \
-            --settings NODE_ENV=production SCM_DO_BUILD_DURING_DEPLOYMENT=false
+            --settings \
+              NODE_ENV=production \
+              SCM_DO_BUILD_DURING_DEPLOYMENT=false \
+              SQL_SERVER=${{ secrets.LAB_AVANCADO_SQL_SERVER }} \
+              SQL_DATABASE=${{ secrets.LAB_AVANCADO_SQL_DATABASE }} \
+              SQL_USER=${{ secrets.LAB_AVANCADO_SQL_USER }} \
+              SQL_PASSWORD=${{ secrets.LAB_AVANCADO_SQL_PASSWORD }}
 
       - name: Configurar startup command
         run: |
