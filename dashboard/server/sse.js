@@ -9,7 +9,7 @@ function addClient(req, res) {
     'Access-Control-Allow-Origin': '*',
   });
 
-  res.write(`data: ${JSON.stringify({ type: 'connected', message: 'SSE connection established' })}\n\n`);
+  res.write(`event: connected\ndata: ${JSON.stringify({ type: 'connected', message: 'SSE connection established', clientCount: clients.length + 1 })}\n\n`);
 
   clients.push(res);
   console.log(`SSE client connected. Total clients: ${clients.length}`);
@@ -35,7 +35,7 @@ function broadcast(event) {
     timestamp: event.timestamp || new Date().toISOString(),
   };
 
-  const data = `data: ${JSON.stringify(payload)}\n\n`;
+  const data = `event: event\ndata: ${JSON.stringify(payload)}\n\n`;
 
   clients.forEach((client) => {
     try {
