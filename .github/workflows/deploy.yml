@@ -134,17 +134,14 @@ jobs:
             --settings \
               NODE_ENV=production \
               SCM_DO_BUILD_DURING_DEPLOYMENT=false \
-              WEBSITE_RUN_FROM_PACKAGE=1
           az webapp config set \
             --name ${{ secrets.LAB_AVANCADO_APP_NAME }} \
             --resource-group rg-lab-avancado \
             --startup-file "node server/index.js"
 
       - name: Deploy para App Service
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ${{ secrets.LAB_AVANCADO_APP_NAME }}
-          package: dashboard/deploy.zip
+        run: |
+          az webapp deploy             --name ${{ secrets.LAB_AVANCADO_APP_NAME }}             --resource-group rg-lab-avancado             --src-path dashboard/deploy.zip             --type zip             --clean true
 
   # ─── Job 3: Deploy Azure Functions ─────────────────────────
   deploy-functions:
