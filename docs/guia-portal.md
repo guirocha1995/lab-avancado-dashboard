@@ -983,6 +983,8 @@ O repositorio inclui um workflow do GitHub Actions que automatiza todo o process
 - **Build e deploy do App Service** (React frontend + Express API)
 - **Deploy das Azure Functions** (13 functions incluindo Durable Functions)
 - **Seed do SQL Database** (schema das 5 tabelas + 12 produtos + stored procedure)
+- **Configuracao automatica** do `APP_CALLBACK_URL` no Function App (para callbacks SSE)
+- **Configuracao automatica** da policy do APIM (roteamento para a Function App)
 
 ### Passo 10.1: Criar o Service Principal
 
@@ -1023,8 +1025,8 @@ az ad sp create-for-rbac \
 | Job | O que faz | Tempo |
 |-----|-----------|-------|
 | **Validate** | Verifica sintaxe JS de ambos os projetos, faz build do React (Vite) | ~2 min |
-| **Deploy App Service** | Monta pacote (Express + React buildado + web.config), configura App Settings e deploya no App Service | ~3 min |
-| **Deploy Azure Functions** | Instala dependencias e deploya as 13 functions (incluindo Durable Functions) no Function App | ~2 min |
+| **Deploy App Service** | Monta pacote (Express + React buildado), configura App Settings (SQL, startup command) e deploya no App Service | ~3 min |
+| **Deploy Azure Functions** | Instala dependencias, deploya as 13 functions, configura `APP_CALLBACK_URL` e aplica policy APIM | ~2 min |
 | **Seed SQL Database** | Libera IP do runner no firewall, executa `init.sql` (5 tabelas + 12 produtos + stored procedure), remove IP do firewall | ~1 min |
 
 > **Sobre o firewall do SQL:** O workflow automaticamente adiciona o IP do runner do GitHub Actions no firewall do SQL Server antes de executar o seed, e **sempre** remove o IP ao final (mesmo se o seed falhar), garantindo que nao fique nenhuma regra de firewall desnecessaria.
@@ -1033,7 +1035,7 @@ az ad sp create-for-rbac \
 
 1. No GitHub, verifique que os 4 jobs finalizaram com check verde
 2. **App Service:** Abra `https://app-lab-avancado.azurewebsites.net` — o dashboard deve carregar
-3. **Functions:** No Azure Portal, navegue ate `func-lab-avancado` > **Functions** — deve listar 13 functions
+3. **Functions:** No Azure Portal, navegue ate `func-lab-avancado` > **Functions** — deve listar 13 functions (o `processOrder` nao aparece pois foi substituido pelo Durable Functions Orchestrator)
 4. **SQL Database:** No Portal, abra o Query Editor do `sqldb-lab-avancado` e execute:
 
 ```sql
@@ -1044,7 +1046,7 @@ SELECT COUNT(*) AS TotalProducts FROM Products;
 
 > **Nota:** A primeira carga do App Service pode demorar 15-30 segundos (cold start). Se der erro 502/503, aguarde 1 minuto e tente novamente.
 >
-> **Deploy continuo:** Apos esta configuracao, qualquer push na branch `main` que altere arquivos do dashboard ou das functions dispara automaticamente o workflow.
+> **Deploy manual (workflow_dispatch):** O workflow so executa quando disparado manualmente no GitHub Actions (Run workflow). Nao ha deploy automatico em push.
 
 ---
 
@@ -1132,8 +1134,8 @@ Antes de configurar a autenticacao OAuth 2.0, vamos validar que todos os recurso
 ### Teste C -- Verificar Functions no Portal
 
 1. No Azure Portal, navegue ate `func-lab-avancado` > **Functions**
-2. Verifique que as 13 functions aparecem:
-   - `createOrderApi`, `processOrder`, `orderOrchestrator`
+2. Verifique que as functions aparecem:
+   - `createOrderApi`, `orderOrchestratorFunction`, `orderOrchestratorStarter`
    - 6 activities: `validateOrder`, `reserveStock`, `checkCredit`, `processPayment`, `updateStatus`, `notifyCompletion`
    - `notifyStock`, `handleStockAlert`, `processTelemetry`, `sendTestTelemetry`
 
@@ -1145,9 +1147,11 @@ Antes de configurar a autenticacao OAuth 2.0, vamos validar que todos os recurso
 
 ---
 
-## Etapa 13 -- Configurar Autenticacao com Microsoft Entra ID
+## Etapa 13 -- (OPCIONAL) Configurar Autenticacao com Microsoft Entra ID
 
 **Tempo estimado:** ~20 minutos
+
+> **Esta etapa eh opcional.** O dashboard funciona perfeitamente sem OAuth 2.0 — o fluxo completo de pedidos, pipeline, eventos e telemetria ja funciona apos as Etapas 10-12. Esta etapa adiciona uma camada extra de seguranca para demonstrar o conceito de autenticacao entre servicos no Azure. Se voce quiser pular, va direto para a **Etapa 14**.
 
 Esta etapa adiciona uma camada de seguranca OAuth 2.0 ao fluxo App Service -> APIM. O App Service obtem um token JWT do Microsoft Entra ID (Azure AD) usando Client Credentials flow e o envia junto com cada chamada ao APIM. O APIM valida o JWT antes de rotear para o backend.
 
@@ -1314,7 +1318,7 @@ App Service --> APIM (Bearer JWT + Subscription Key) --> validate-jwt --> Functi
 
 **Tempo estimado:** ~20 minutos
 
-> **Nota:** Os testes basicos de navegacao e fluxo de pedido ja foram realizados no Pre-teste (Etapa 12). Aqui vamos testar os cenarios avancados que validam cada servico individualmente, incluindo a autenticacao OAuth 2.0 configurada na etapa anterior.
+> **Nota:** Os testes basicos de navegacao e fluxo de pedido ja foram realizados no Pre-teste (Etapa 12). Aqui vamos testar os cenarios avancados que validam cada servico individualmente. Se voce configurou a autenticacao OAuth 2.0 (Etapa 13), os testes tambem validam essa camada.
 
 ---
 
@@ -1464,7 +1468,7 @@ done
 
 > **Atencao:** Isso apaga TODOS os recursos do Resource Group: SQL Server, SQL Database, App Service, API Management, Function App, Logic Apps, Service Bus, Event Grid, Event Hubs, Application Insights e Storage Account. Certifique-se de que nao precisa preservar nada.
 >
-> **App Registrations (Entra ID):** As App Registrations (`app-reg-lab-api` e `app-reg-lab-dashboard`) NAO sao deletadas junto com o Resource Group, pois pertencem ao Microsoft Entra ID. Para remove-las, va em **Microsoft Entra ID** -> **App registrations** -> selecione cada uma -> **Delete**.
+> **App Registrations (Entra ID):** Se voce fez a Etapa 13 (opcional), as App Registrations (`app-reg-lab-api` e `app-reg-lab-dashboard`) NAO sao deletadas junto com o Resource Group, pois pertencem ao Microsoft Entra ID. Para remove-las, va em **Microsoft Entra ID** -> **App registrations** -> selecione cada uma -> **Delete**. Se voce pulou a Etapa 13, nao ha App Registrations para deletar.
 >
 > **Custo se esquecer de deletar:** App Service B1 (~R$ 3/dia) + SQL Serverless (~R$ 1-2/dia) + APIM Consumption (~R$ 1/dia) + Service Bus Standard (~R$ 2/dia) + Event Hubs Standard (~R$ 4/dia) + Logic Apps (~centavos) = ~R$ 11-13/dia. Em uma semana, ~R$ 80-90.
 
