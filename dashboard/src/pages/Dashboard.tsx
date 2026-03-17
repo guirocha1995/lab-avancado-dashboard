@@ -15,7 +15,7 @@ import {
 import { KpiCard } from '../components/KpiCard';
 import { EventCard } from '../components/EventCard';
 import { PipelineNode, type NodeState } from '../components/PipelineNode';
-import { getDashboardMetrics } from '../services/api';
+import { getDashboardMetrics, getPipelineMetrics } from '../services/api';
 import type { DashboardMetrics as DashboardMetricsType, EventLogEntry } from '../types';
 
 function formatCurrency(value: number): string {
@@ -66,6 +66,7 @@ const Dashboard: React.FC<DashboardProps> = ({ events, connected }) => {
   const navigate = useNavigate();
   const [metrics, setMetrics] = useState<DashboardMetricsType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pipelineCounts, setPipelineCounts] = useState<Record<string, number>>({});
   const [pipelineNodes, setPipelineNodes] = useState<PipelineNodeData[]>([
     { icon: 'server', label: 'Pedido', count: 0, state: 'idle' },
     { icon: 'shield', label: 'APIM', count: 0, state: 'idle' },
@@ -78,8 +79,12 @@ const Dashboard: React.FC<DashboardProps> = ({ events, connected }) => {
 
   const loadMetrics = useCallback(async () => {
     try {
-      const data = await getDashboardMetrics();
+      const [data, pipeline] = await Promise.all([
+        getDashboardMetrics(),
+        getPipelineMetrics().catch(() => ({})),
+      ]);
       setMetrics(data);
+      setPipelineCounts(pipeline);
     } catch (err) {
       console.error('Erro ao carregar metricas:', err);
     } finally {
@@ -147,11 +152,12 @@ const Dashboard: React.FC<DashboardProps> = ({ events, connected }) => {
 
   const statusCounts: StatusCount[] = metrics
     ? [
-        { label: 'Pendente', count: metrics.pendingOrders, color: 'bg-yellow-400' },
-        { label: 'Processando', count: Math.floor(metrics.totalOrders * 0.2), color: 'bg-blue-500' },
-        { label: 'Aprovado', count: Math.floor(metrics.totalOrders * 0.5), color: 'bg-green-500' },
-        { label: 'Enviado', count: Math.floor(metrics.totalOrders * 0.2), color: 'bg-purple-500' },
-        { label: 'Entregue', count: Math.floor(metrics.totalOrders * 0.1), color: 'bg-emerald-500' },
+        { label: 'Pendente', count: pipelineCounts.pending ?? metrics.pendingOrders, color: 'bg-yellow-400' },
+        { label: 'Processando', count: pipelineCounts.processing ?? 0, color: 'bg-blue-500' },
+        { label: 'Aprovado', count: pipelineCounts.approved ?? 0, color: 'bg-green-500' },
+        { label: 'Enviado', count: pipelineCounts.shipped ?? 0, color: 'bg-purple-500' },
+        { label: 'Entregue', count: pipelineCounts.delivered ?? 0, color: 'bg-emerald-500' },
+        { label: 'Cancelado', count: pipelineCounts.cancelled ?? 0, color: 'bg-red-400' },
       ]
     : [];
 

@@ -33,7 +33,7 @@ const { app } = require('@azure/functions');
 const { ServiceBusClient } = require('@azure/service-bus');
 const { EventGridPublisherClient, AzureKeyCredential } = require('@azure/eventgrid');
 
-const APP_CALLBACK_URL = process.env.APP_CALLBACK_URL || 'http://localhost:3000';
+const APP_CALLBACK_URL = process.env.APP_CALLBACK_URL || 'http://localhost:3001';
 
 /**
  * Envia uma notificacao de evento para o App Service via HTTP POST.
@@ -193,6 +193,9 @@ async function publishLowStockEvent(product, orderId, context) {
  * A opcao 'connection' referencia o NOME da app setting que contem
  * a connection string, nao a connection string em si.
  */
+// Legacy simple pipeline version — disabled by default because orderOrchestrator
+// (Durable Functions) handles the same queue. Enable with USE_SIMPLE_PIPELINE=true.
+if (process.env.USE_SIMPLE_PIPELINE === 'true') {
 app.serviceBusQueue('processOrder', {
   connection: 'SERVICEBUS_CONNECTION_STRING',
   queueName: 'order-queue',
@@ -272,3 +275,4 @@ app.serviceBusQueue('processOrder', {
     }
   },
 });
+} // end USE_SIMPLE_PIPELINE guard

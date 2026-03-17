@@ -31,12 +31,10 @@ function broadcast(event) {
 
   const payload = {
     id: eventIdCounter,
-    type: eventType,
     eventType,
     source: event.source || 'app-service',
     payload: event.payload || {},
     severity: event.severity || 'info',
-    timestamp: event.timestamp || now,
     createdAt: event.timestamp || now,
   };
 

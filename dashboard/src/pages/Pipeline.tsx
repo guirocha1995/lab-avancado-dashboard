@@ -100,7 +100,7 @@ const initialNodes: PipelineNodeDef[] = [
     avgLatency: 0,
     lastEventTime: null,
     matchSources: ['service-bus'],
-    matchEventTypes: ['queue.message.sent', 'queue.message.received'],
+    matchEventTypes: ['queue.message.sent', 'queue.message.received', 'order.queued'],
   },
   {
     id: 'validate-order',
@@ -193,8 +193,8 @@ const branchANodes: PipelineNodeDef[] = [
     errors: 0,
     avgLatency: 0,
     lastEventTime: null,
-    matchSources: ['functions'],
-    matchEventTypes: ['stock.checked', 'stock.updated', 'stock.notification'],
+    matchSources: ['function-notifyStock'],
+    matchEventTypes: ['stock.checked', 'stock.updated', 'stock.low'],
   },
   {
     id: 'event-grid',
@@ -206,8 +206,8 @@ const branchANodes: PipelineNodeDef[] = [
     errors: 0,
     avgLatency: 0,
     lastEventTime: null,
-    matchSources: ['event-grid'],
-    matchEventTypes: ['stock.low', 'stock.alert.published'],
+    matchSources: ['event-grid', 'function-handleStockAlert'],
+    matchEventTypes: ['stock.low', 'stock.alert', 'inventory.low-stock'],
   },
   {
     id: 'handle-alert',
@@ -219,8 +219,8 @@ const branchANodes: PipelineNodeDef[] = [
     errors: 0,
     avgLatency: 0,
     lastEventTime: null,
-    matchSources: ['functions'],
-    matchEventTypes: ['stock.alert.handled', 'alert.processed'],
+    matchSources: ['function-handleStockAlert'],
+    matchEventTypes: ['stock.alert'],
   },
 ];
 
@@ -277,8 +277,8 @@ const branchBNodes: PipelineNodeDef[] = [
     errors: 0,
     avgLatency: 0,
     lastEventTime: null,
-    matchSources: ['functions'],
-    matchEventTypes: ['telemetry.processed', 'telemetry.aggregated'],
+    matchSources: ['function-processTelemetry'],
+    matchEventTypes: ['telemetry.received', 'telemetry.processed', 'telemetry.aggregated'],
   },
 ];
 

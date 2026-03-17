@@ -28,7 +28,7 @@
 
 const { app } = require('@azure/functions');
 
-const APP_CALLBACK_URL = process.env.APP_CALLBACK_URL || 'http://localhost:3000';
+const APP_CALLBACK_URL = process.env.APP_CALLBACK_URL || 'http://localhost:3001';
 
 /**
  * Envia uma notificacao de evento para o App Service via HTTP POST.
@@ -60,42 +60,6 @@ async function notifyAppService(event, context) {
 }
 
 /**
- * Atualiza o estoque de um produto no App Service via HTTP PATCH.
- *
- * @param {string} productId - ID do produto
- * @param {number} quantity - Quantidade a decrementar
- * @param {object} context - Contexto do Azure Functions
- * @returns {object|null} Resposta do App Service com o novo estoque
- */
-async function decrementProductStock(productId, quantity, context) {
-  try {
-    const url = `${APP_CALLBACK_URL}/api/products/${productId}/stock`;
-    const response = await fetch(url, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'decrement',
-        quantity: quantity,
-      }),
-    });
-
-    if (!response.ok) {
-      context.warn(
-        '[notifyStock] Falha ao atualizar estoque do produto ' + productId +
-        ': ' + response.status
-      );
-      return null;
-    }
-
-    const result = await response.json();
-    return result;
-  } catch (error) {
-    context.warn('[notifyStock] Erro ao atualizar estoque: ' + error.message);
-    return null;
-  }
-}
-
-/**
  * Registra o Service Bus Topic Subscription Trigger no Azure Functions v4.
  *
  * O topicName eh o topic do Service Bus e subscriptionName eh a subscription
@@ -112,9 +76,9 @@ app.serviceBusTopic('notifyStock', {
     try {
       const items = message.items || [];
 
-      // --- 1. Notificar App Service: atualizacao de estoque iniciada ---
+      // --- 1. Notificar App Service: verificacao de estoque iniciada ---
       await notifyAppService({
-        eventType: 'stock.updated',
+        eventType: 'stock.checked',
         source: 'function-notifyStock',
         payload: {
           orderId: message.orderId,
@@ -123,37 +87,45 @@ app.serviceBusTopic('notifyStock', {
         severity: 'info',
       }, context);
 
-      // --- 2. Decrementar estoque de cada item do pedido ---
+      // --- 2. Verificar estoque atual de cada item (GET, sem decrementar) ---
       for (const item of items) {
         context.log(
-          '[notifyStock] Decrementando estoque: ' +
-          item.productId + ' (qtd: ' + item.quantity + ')'
+          '[notifyStock] Verificando estoque: ' + item.productId
         );
 
-        const result = await decrementProductStock(
-          item.productId,
-          item.quantity,
-          context
-        );
+        try {
+          const url = `${APP_CALLBACK_URL}/api/products/${item.productId}`;
+          const response = await fetch(url);
 
-        // --- 3. Verificar se estoque ficou baixo ---
-        if (result && result.newStock !== undefined && result.newStock < 10) {
-          context.log(
-            '[notifyStock] ESTOQUE BAIXO detectado: ' +
-            item.productId + ' (novo estoque: ' + result.newStock + ')'
-          );
+          if (!response.ok) {
+            context.warn('[notifyStock] Falha ao buscar produto ' + item.productId + ': ' + response.status);
+            continue;
+          }
 
-          await notifyAppService({
-            eventType: 'stock.low',
-            source: 'function-notifyStock',
-            payload: {
-              productId: item.productId,
-              productName: item.productName || item.productId,
-              currentStock: result.newStock,
-              orderId: message.orderId,
-            },
-            severity: 'warning',
-          }, context);
+          const product = await response.json();
+          const currentStock = product.stock !== undefined ? product.stock : product.Stock;
+
+          // --- 3. Verificar se estoque esta baixo ---
+          if (currentStock !== undefined && currentStock < 10) {
+            context.log(
+              '[notifyStock] ESTOQUE BAIXO detectado: ' +
+              item.productId + ' (estoque: ' + currentStock + ')'
+            );
+
+            await notifyAppService({
+              eventType: 'stock.low',
+              source: 'function-notifyStock',
+              payload: {
+                productId: item.productId,
+                productName: item.productName || product.name || item.productId,
+                currentStock: currentStock,
+                orderId: message.orderId,
+              },
+              severity: 'warning',
+            }, context);
+          }
+        } catch (error) {
+          context.warn('[notifyStock] Erro ao verificar estoque de ' + item.productId + ': ' + error.message);
         }
       }
 

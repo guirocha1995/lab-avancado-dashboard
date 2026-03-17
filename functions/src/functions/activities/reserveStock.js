@@ -86,33 +86,41 @@ df.app.activity('reserveStock', {
     const items = input.items || [];
     const lowStockProducts = [];
 
-    // Reservar estoque para cada item
+    // Reservar estoque para cada item: GET current stock, calculate new, PATCH
     for (const item of items) {
       try {
-        const url = `${APP_CALLBACK_URL}/api/products/${item.productId}/stock`;
-        const response = await fetch(url, {
+        // GET current product to read stock level
+        const getUrl = `${APP_CALLBACK_URL}/api/products/${item.productId}`;
+        const getResponse = await fetch(getUrl);
+
+        if (!getResponse.ok) {
+          context.warn('[reserveStock] Falha ao buscar produto ' + item.productId + ': ' + getResponse.status);
+          continue;
+        }
+
+        const product = await getResponse.json();
+        const currentStock = product.stock !== undefined ? product.stock : product.Stock;
+        const quantity = item.quantity || 0;
+        const newStock = Math.max(0, (currentStock || 0) - quantity);
+
+        // PATCH with the calculated new stock value
+        const patchUrl = `${APP_CALLBACK_URL}/api/products/${item.productId}/stock`;
+        const patchResponse = await fetch(patchUrl, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            quantity: -(item.quantity || 0),
-            reason: 'order-reservation',
-            orderId: input.orderId,
-          }),
+          body: JSON.stringify({ stock: newStock }),
         });
 
-        if (response.ok) {
-          const result = await response.json();
-          const currentStock = result.stock !== undefined ? result.stock : result.Stock;
-
-          if (currentStock !== undefined && currentStock < 10) {
+        if (patchResponse.ok) {
+          if (newStock < 10) {
             lowStockProducts.push({
               productId: item.productId,
               productName: item.productName || item.productId,
-              currentStock: currentStock,
+              currentStock: newStock,
             });
           }
         } else {
-          context.warn('[reserveStock] Falha ao reservar estoque para ' + item.productId + ': ' + response.status);
+          context.warn('[reserveStock] Falha ao atualizar estoque para ' + item.productId + ': ' + patchResponse.status);
         }
       } catch (error) {
         context.warn('[reserveStock] Erro ao reservar estoque para ' + item.productId + ': ' + error.message);

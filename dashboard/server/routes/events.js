@@ -14,8 +14,13 @@ router.get('/', async (req, res) => {
     `);
 
     const parsed = events.map((e) => ({
-      ...e,
-      Payload: e.Payload ? JSON.parse(e.Payload) : null,
+      id: e.Id,
+      eventType: e.EventType,
+      source: e.Source,
+      payload: e.Payload ? JSON.parse(e.Payload) : null,
+      orderId: e.OrderId,
+      severity: e.Severity,
+      createdAt: e.CreatedAt,
     }));
 
     res.json(parsed);
@@ -100,9 +105,9 @@ router.get('/stats', async (req, res) => {
     `);
 
     res.json({
-      byType,
-      bySource,
-      bySeverity,
+      byType: byType.map((r) => ({ eventType: r.EventType, count: r.Count })),
+      bySource: bySource.map((r) => ({ source: r.Source, count: r.Count })),
+      bySeverity: bySeverity.map((r) => ({ severity: r.Severity, count: r.Count })),
       period: 'last_24h',
     });
   } catch (err) {

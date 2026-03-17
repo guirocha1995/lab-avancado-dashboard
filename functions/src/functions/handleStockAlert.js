@@ -30,7 +30,7 @@
 
 const { app } = require('@azure/functions');
 
-const APP_CALLBACK_URL = process.env.APP_CALLBACK_URL || 'http://localhost:3000';
+const APP_CALLBACK_URL = process.env.APP_CALLBACK_URL || 'http://localhost:3001';
 
 /**
  * Envia uma notificacao de evento para o App Service via HTTP POST.

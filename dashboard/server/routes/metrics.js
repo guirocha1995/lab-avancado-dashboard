@@ -16,7 +16,7 @@ router.get('/dashboard', async (req, res) => {
         pendingOrders: 0,
         lowStockCount: 0,
         eventsLastHour: 0,
-        avgProcessingTimeSeconds: 0,
+        avgProcessingTime: 0,
       });
     }
 
@@ -27,7 +27,7 @@ router.get('/dashboard', async (req, res) => {
       pendingOrders: row.PendingOrders,
       lowStockCount: row.LowStockCount,
       eventsLastHour: row.EventsLastHour,
-      avgProcessingTimeSeconds: row.AvgProcessingTimeSeconds,
+      avgProcessingTime: row.AvgProcessingTimeSeconds,
     });
   } catch (err) {
     console.error('Error fetching dashboard metrics:', err.message);
