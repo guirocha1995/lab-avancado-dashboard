@@ -10,29 +10,20 @@ const config = {
     trustServerCertificate: false,
     enableArithAbort: true,
   },
-  connectionTimeout: 45000,   // aumentado
+  connectionTimeout: 60000,
   requestTimeout: 60000,
-  pool: {
-    max: 10,
-    min: 0,
-    idleTimeoutMillis: 30000,
-  }
 };
 
-async function connectWithRetry(retries = 8, delayMs = 10000) {
+async function connectWithRetry(retries = 10, delayMs = 12000) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`🔄 Tentativa ${attempt}/${retries} - Conectando ao ${config.server}...`);
-      
+      console.log(`🔄 Tentativa ${attempt}/${retries}...`);
       const pool = await sql.connect(config);
-      console.log("✅ Conexão estabelecida com sucesso!");
+      console.log("✅ Conectado com sucesso!");
       return pool;
     } catch (err) {
-      console.error(`❌ Tentativa ${attempt} falhou: ${err.message}`);
-      
+      console.error(`❌ Falha ${attempt}: ${err.message}`);
       if (attempt === retries) throw err;
-      
-      console.log(`⏳ Aguardando ${delayMs/1000}s antes da próxima tentativa...`);
       await new Promise(r => setTimeout(r, delayMs));
     }
   }
@@ -42,15 +33,13 @@ async function main() {
   let pool = null;
   try {
     pool = await connectWithRetry();
+    console.log("🚀 Iniciando seed...");
 
-    console.log("🚀 Iniciando seed do banco...");
+    // Seu código de seed aqui
 
-    // Coloque aqui suas queries de CREATE TABLE / INSERTS
-
-    console.log("✅ Seed concluído com sucesso!");
-
+    console.log("✅ Seed finalizado!");
   } catch (err) {
-    console.error("❌ Falha final na conexão:", err.message);
+    console.error("❌ Erro final:", err.message);
     process.exit(1);
   } finally {
     if (pool) await pool.close();
