@@ -251,10 +251,10 @@ jobs:
     
   seed-db:
     name: "Seed SQL Database"
-    runs-on: ubuntu-latest
+    runs-on: macos-latest        # ← Mudança importante
     needs: validate
     if: github.event.inputs.seed_database == 'true'
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -268,14 +268,16 @@ jobs:
         run: npm install mssql
         working-directory: dashboard
 
-      - name: Teste de DNS (Debug)
+      - name: Debug DNS
         run: |
-          echo "🔍 Testando resolução DNS..."
+          echo "🔍 Resolvendo DNS do servidor..."
           nslookup ${{ secrets.LAB_AVANCADO_SQL_SERVER }}
           dig +short ${{ secrets.LAB_AVANCADO_SQL_SERVER }}
+          echo "IP do runner:"
+          curl -s https://api.ipify.org
         working-directory: dashboard
 
-      - name: Executar Seed (Retry Forte)
+      - name: Executar Seed (Retry MUITO agressivo)
         run: node scripts/init-db.js
         working-directory: dashboard
         env:
@@ -283,4 +285,4 @@ jobs:
           SQL_DATABASE: ${{ secrets.LAB_AVANCADO_SQL_DATABASE }}
           SQL_USER: ${{ secrets.LAB_AVANCADO_SQL_USER }}
           SQL_PASSWORD: ${{ secrets.LAB_AVANCADO_SQL_PASSWORD }}
-        timeout-minutes: 12
+        timeout-minutes: 15
