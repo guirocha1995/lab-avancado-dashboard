@@ -1,5 +1,4 @@
 const sql = require('mssql');
-require('dotenv').config(); // caso queira usar .env local também
 
 const config = {
   server: process.env.SQL_SERVER,
@@ -11,72 +10,50 @@ const config = {
     trustServerCertificate: false,
     enableArithAbort: true,
   },
+  connectionTimeout: 45000,   // aumentado
+  requestTimeout: 60000,
   pool: {
     max: 10,
     min: 0,
     idleTimeoutMillis: 30000,
-  },
-  connectionTimeout: 30000,
-  requestTimeout: 60000,
+  }
 };
 
-/**
- * Conexão com Retry (principal solução para EAI_AGAIN)
- */
-async function connectWithRetry(retries = 6, delayMs = 8000) {
+async function connectWithRetry(retries = 8, delayMs = 10000) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`🔄 Tentativa ${attempt}/${retries} - Conectando ao Azure SQL...`);
+      console.log(`🔄 Tentativa ${attempt}/${retries} - Conectando ao ${config.server}...`);
       
       const pool = await sql.connect(config);
       console.log("✅ Conexão estabelecida com sucesso!");
       return pool;
     } catch (err) {
       console.error(`❌ Tentativa ${attempt} falhou: ${err.message}`);
-
-      if (attempt === retries) {
-        console.error("⛔ Todas as tentativas falharam. Verifique o firewall, DNS ou segredos.");
-        throw err;
-      }
-
-      console.log(`⏳ Aguardando ${delayMs / 1000} segundos...`);
-      await new Promise(resolve => setTimeout(resolve, delayMs));
+      
+      if (attempt === retries) throw err;
+      
+      console.log(`⏳ Aguardando ${delayMs/1000}s antes da próxima tentativa...`);
+      await new Promise(r => setTimeout(r, delayMs));
     }
   }
 }
 
 async function main() {
   let pool = null;
-
   try {
     pool = await connectWithRetry();
 
-    console.log("🚀 Iniciando seed do banco de dados...");
+    console.log("🚀 Iniciando seed do banco...");
 
-    // ====================== SEU CÓDIGO DE SEED ======================
-    // Coloque aqui todas as queries de CREATE TABLE, INSERT, etc.
-    // Exemplo:
-    /*
-    await pool.query(`
-      IF OBJECT_ID('dbo.Usuarios', 'U') IS NULL
-      CREATE TABLE Usuarios (
-        id INT IDENTITY(1,1) PRIMARY KEY,
-        nome VARCHAR(100),
-        email VARCHAR(150) UNIQUE
-      );
-    `);
-    */
+    // Coloque aqui suas queries de CREATE TABLE / INSERTS
 
-    console.log("✅ Seed do banco finalizado com sucesso!");
+    console.log("✅ Seed concluído com sucesso!");
 
   } catch (err) {
-    console.error("❌ Falha na inicialização do banco:", err.message);
+    console.error("❌ Falha final na conexão:", err.message);
     process.exit(1);
   } finally {
-    if (pool) {
-      await pool.close();
-      console.log("🔌 Conexão com o banco fechada.");
-    }
+    if (pool) await pool.close();
   }
 }
 
