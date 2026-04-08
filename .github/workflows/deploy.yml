@@ -249,7 +249,7 @@ jobs:
             echo "Operacao nao encontrada no APIM — pulando policy"
           fi # ─── Job 4: Seed Database ──────────────────────────────────
     
-    seed-db:
+  seed-db:
     name: "Seed SQL Database"
     runs-on: ubuntu-22.04          # Mais estável que ubuntu-latest para DNS
     needs: validate
