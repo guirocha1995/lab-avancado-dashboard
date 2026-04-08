@@ -5,12 +5,16 @@ const config = {
   database: process.env.SQL_DATABASE,
   user: process.env.SQL_USER,
   password: process.env.SQL_PASSWORD,
-  options: { encrypt: true, trustServerCertificate: false },
-  connectionTimeout: 90000,
-  requestTimeout: 90000,
+  options: {
+    encrypt: true,
+    trustServerCertificate: false,
+    enableArithAbort: true,
+  },
+  connectionTimeout: 60000,
+  requestTimeout: 60000,
 };
 
-async function connectWithRetry(retries = 15, delayMs = 15000) {
+async function connectWithRetry(retries = 10, delayMs = 12000) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       console.log(`🔄 Tentativa ${attempt}/${retries}...`);
@@ -29,7 +33,7 @@ async function main() {
   let pool = null;
   try {
     pool = await connectWithRetry();
-    console.log("🚀 Executando seed...");
+    console.log("🚀 Iniciando seed...");
 
     // Seu código de seed aqui
 
