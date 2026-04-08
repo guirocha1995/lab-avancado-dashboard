@@ -251,7 +251,7 @@ jobs:
     
   seed-db:
     name: "Seed SQL Database"
-    runs-on: ubuntu-22.04          # Mais estável que ubuntu-latest para DNS
+    runs-on: ubuntu-22.04
     needs: validate
     if: github.event.inputs.seed_database == 'true'
 
@@ -268,7 +268,6 @@ jobs:
         run: npm install mssql
         working-directory: dashboard
 
-      # ================== MELHORIAS PARA DNS ==================
       - name: Forçar DNS IPv4 (Resolve EAI_AGAIN)
         run: |
           echo "🔧 Forçando resolução IPv4..."
@@ -291,7 +290,6 @@ jobs:
       - name: Aguardar estabilização de rede
         run: sleep 20
 
-      # ================== EXECUÇÃO DO SEED ==================
       - name: Executar Seed (Retry Ultra Reforçado)
         run: node scripts/init-db.js
         working-directory: dashboard
